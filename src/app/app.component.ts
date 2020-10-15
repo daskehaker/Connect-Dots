@@ -4,6 +4,7 @@ import { ILevel, IDot, IDotContainer, IDotArray } from './interfaces';
 import { Component, ElementRef, NgZone, OnInit, ViewChild } from '@angular/core';
 import { Level } from './level';
 import * as data from "./levels.json"
+import { runInThisContext } from 'vm';
 
 @Component({
   selector: 'app-root',
@@ -18,15 +19,16 @@ export class AppComponent implements OnInit{
   circle: Path2D
 
   levels: ILevel
-  currentDots: IDotArray
-  currentLevel = 0;
-  currentDot = 0;
-  currentX = 0;
-  currentY = 0;
+  levelDots: IDotArray
+  currentLevel:number;
+  dotsInLevel: number;
+  nextDot: number;
+  currentX: number;
+  currentY: number;
 
-  startPosition = {x: 0, y: 0};
-  lineCoordinates = {x: 0, y: 0};
-  isDrawStart = false;
+  // startPosition = {x: 0, y: 0};
+  // lineCoordinates = {x: 0, y: 0};
+  isDrawStart : boolean;
   isPlaying = false;
   nextLevel = false;
 
@@ -34,39 +36,43 @@ export class AppComponent implements OnInit{
 
   ngOnInit(): void {
     this.ctx = this.canvas.nativeElement.getContext('2d');
-    //this.ctx2 = this.background.nativeElement.getContext('2d');
     this.clearCanvas();
-    //this.initBackgroundImage();
-    //this.next();
+    this.currentLevel=0;
   }
 
   initBackgroundImage(){
     var image = new Image();
-    image.src = "../assets/background.jpg";
     image.onload = () => {
-        this.ctx.drawImage(image, 0, 0);
-      }
-    // return await new Promise ((resolve, reject) => {
-    //   image.onload = async () => {
-    //     this.ctx.drawImage(image, 0, 0);
-    //     resolve(true)
-    //   }
-    // })
+      this.ctx.drawImage(image, 0, 0);
+    }
+    image.src = "../assets/background.jpg";
   }
 
   initParams() {
     this.levels = new Level(data.levels)
-    this.currentDots = new DotsArray(this.levels.levels[this.currentLevel].level_data);
-    this.startPosition = {x: 0, y: 0};
-    this.lineCoordinates = {x: 0, y: 0};
-    this.setCurrentPoints();
+    this.levelDots = new DotsArray(this.levels.levels[this.currentLevel].level_data);
+    this.isDrawStart = false;
+    this.dotsInLevel = this.levelDots.count;
+    this.nextDot = 0;
+    this.setNextPoints();
   }
 
-  setCurrentPoints(){
-    this.currentX = this.currentDots.xArray[this.currentDot]*10
-    this.currentY = this.currentDots.yArray[this.currentDot]*10
-    if(!this.currentX) this.nextLevel = true;
+  setNextPoints(){
+    this.currentX = this.levelDots.xArray[this.nextDot]*10
+    this.currentY = this.levelDots.yArray[this.nextDot]*10
+    if(this.nextDot == this.dotsInLevel && this.currentLevel!=3){
+      this.nextLevel = true
+    }
+    else if (this.nextDot == this.dotsInLevel) console.log("Congradulations!!!")
     if(this.isPlaying) this.initCircle();
+  }
+
+  gameOver() {
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect(200, 200, 300, 300);
+    this.ctx.font = "1px Arial";
+    this.ctx.fillStyle = "red";
+    this.ctx.fillText("GAME OVER", 200, 200);
   }
 
   clearCanvas(){
@@ -75,18 +81,10 @@ export class AppComponent implements OnInit{
     this.initBackgroundImage();
   }
 
-  next() {
-    this.currentLevel++
-    // var Zone
-    // this.ngZone.run(() => this.clearCanvas())
-    // Zone.AfterTask = () => { this.play();}
-
-    // console.log("labas")
-    // this.pl
-    () => {
-      this.clearCanvas();
-      this.play();
-    }
+  async next() {
+    this.currentLevel++;
+    this.clearCanvas();
+    setTimeout(() => {this.play()}, 300);
   }
 
   play() {
@@ -120,16 +118,12 @@ export class AppComponent implements OnInit{
 
   draw() {
     this.ctx.fill(this.circle);
-    this.ctx.fillText((this.currentDot+1).toString(), this.currentX, this.currentY+30)
+    this.ctx.fillText((this.nextDot+1).toString(), this.currentX, this.currentY+30)
     this.setDotImage(this.currentX, this.currentY, "button_magenta.png")
-    for (let i = 1; i<this.currentDots.xArray.length; i++)
+    for (let i = 1; i<this.levelDots.xArray.length; i++)
     {
-      // let crk = new Path2D();
-      // crk.arc(this.currentDots.xArray[i]*10,
-      //    this.currentDots.yArray[i]*10, 10, 0, 2 * Math.PI)
-      // this.ctx.fill(crk);
-      this.setDotImage(this.currentDots.xArray[i]*10, this.currentDots.yArray[i]*10, "button_magenta.png")
-      this.ctx.fillText((i+1).toString(), this.currentDots.xArray[i]*10, this.currentDots.yArray[i]*10+30)
+      this.setDotImage(this.levelDots.xArray[i]*10, this.levelDots.yArray[i]*10, "button_magenta.png")
+      this.ctx.fillText((i+1).toString(), this.levelDots.xArray[i]*10, this.levelDots.yArray[i]*10+30)
     }
   }
 
@@ -141,30 +135,27 @@ export class AppComponent implements OnInit{
     if (this.ctx.isPointInPath(this.circle, x, y)) {
 
       this.setDotImage(this.currentX, this.currentY, "button_blue.png")
+      this.nextDot++;
+      this.setNextPoints();
 
-      this.currentDot++;
-      this.setCurrentPoints();
-      this.startPosition.x = x;
-      this.startPosition.y= y;
-      this.isDrawStart = true;
-      this.ctx.stroke();
+      if(!this.isDrawStart){
+        this.startLine(x, y)
+      }
+      else {
+        this.endLine(x, y)
+      }
+
     }
   }
 
-  mouseMoveListener(event) {
-    if(!this.isDrawStart) return;
-
-    const rect = this.canvas.nativeElement.getBoundingClientRect();
-    let x = event.clientX - rect.left
-    let y = event.clientY - rect.top
-    this.lineCoordinates.x = x
-    this.lineCoordinates.y = y
-    this.drawLine();
+  startLine(x, y){
+    this.ctx.beginPath();
+    this.ctx.moveTo(x, y);
+    this.isDrawStart = !this.isDrawStart;
   }
 
-  drawLine() {
-    this.ctx.beginPath();
-    this.ctx.moveTo(this.startPosition.x, this.startPosition.y);
-    this.ctx.lineTo(this.lineCoordinates.x, this.lineCoordinates.y);
- }
+  endLine(x, y){
+    this.ctx.lineTo(x, y);
+    this.ctx.stroke();
+  }
 }

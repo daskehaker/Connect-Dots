@@ -11,6 +11,7 @@ export interface IDotContainer {
 }
 
 export interface IDotArray {
+  count: number;
   xArray: number[]
   yArray: number[]
 }

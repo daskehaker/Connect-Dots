@@ -1,6 +1,6 @@
-<h1 *ngIf="isPlaying">Level: {{currentLevel}}</h1>
+<h1 *ngIf="isPlaying">Level: {{currentLevel+1}}</h1>
 <h1 *ngIf="!isPlaying">Press play to start</h1>
-<canvas #canvas width="500" height="500" (mousedown)="mouseDownListener($event)" (mousemove)="mouseMoveListener($event)"></canvas>
+<canvas #canvas width="500" height="500" (click)="mouseDownListener($event)"></canvas>
 <button *ngIf="!isPlaying" class="play-button" (click)="play()">Play</button>
 <button *ngIf="nextLevel" class="play-button" (click)="next()">Next</button>
 <button *ngIf="isPlaying" class="quit-button" (click)="quit()">Quit Game</button>
