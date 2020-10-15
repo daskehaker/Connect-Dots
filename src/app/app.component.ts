@@ -24,9 +24,6 @@ export class AppComponent implements OnInit{
   currentX: number;
   currentY: number;
   score: number;
-
-  // startPosition = {x: 0, y: 0};
-  // lineCoordinates = {x: 0, y: 0};
   isDrawStart : boolean;
   isPlaying = false;
   nextLevel = false;
