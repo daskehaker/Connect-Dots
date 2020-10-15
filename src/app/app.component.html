@@ -1,7 +1,25 @@
-<h1 *ngIf="isPlaying">Level: {{currentLevel+1}}</h1>
-<h1 *ngIf="!isPlaying">Press play to start</h1>
-<canvas #canvas width="500" height="500" (click)="mouseDownListener($event)"></canvas>
-<button *ngIf="!isPlaying" class="play-button" (click)="play()">Play</button>
-<button *ngIf="nextLevel" class="play-button" (click)="next()">Next</button>
-<button *ngIf="isPlaying" class="quit-button" (click)="quit()">Quit Game</button>
+<div class="container">
+  <div class="row">
+    <h1 *ngIf="isPlaying">Level: {{currentLevel+1}} Score: {{score}}</h1>
+    <h1 *ngIf="!isPlaying && !gameOver">Press play to start</h1>
+    <h1 *ngIf="gameOver">You Won! High Score: {{score}}</h1>
+  </div>
+  <div class="row">
+    <div class="col">
+      <canvas #canvas width="500" height="500" (click)="mouseDownListener($event)"></canvas>
+    </div>
+    <div class="col">
+      <div class="row">
+        <button class="btn btn-success" [disabled]="isPlaying" (click)="play()">Play</button>
+      </div>
+      <div class="row">
+        <button class="btn btn-success" [disabled]="!nextLevel" (click)="next()">Next Level</button>
+      </div>
+      <div class="row">
+        <button class="btn btn-warning" [disabled]="!isPlaying" (click)="quit()">Quit Game</button>
+      </div>
+    </div>
+  </div>
+
+</div>
 

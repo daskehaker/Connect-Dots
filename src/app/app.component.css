@@ -13,3 +13,10 @@ canvas { border-style: solid }
   padding: 15px 30px;
   cursor: pointer;
 }
+
+.btn {
+  width: 200px;
+  padding: 15px 30px;
+  padding-bottom: 10;
+  cursor: pointer;
+}
