@@ -2,7 +2,7 @@
   <div class="row">
     <h1 *ngIf="isPlaying">Level: {{currentLevel+1}} Score: {{score}}</h1>
     <h1 *ngIf="!isPlaying && !gameOver">Press play to start</h1>
-    <h1 *ngIf="gameOver">You Won! High Score: {{score}}</h1>
+    <h1 *ngIf="gameOver">You Won!</h1>
   </div>
   <div class="row">
     <div class="col">
@@ -16,7 +16,7 @@
         <button class="btn btn-success" [disabled]="!nextLevel" (click)="next()">Next Level</button>
       </div>
       <div class="row">
-        <button class="btn btn-warning" [disabled]="!isPlaying" (click)="quit()">Quit Game</button>
+        <button class="btn btn-warning" [disabled]="!isPlaying" (click)="quit()">Reset Game</button>
       </div>
     </div>
   </div>

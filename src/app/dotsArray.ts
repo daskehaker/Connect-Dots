@@ -1,5 +1,4 @@
-import { Dot } from './dot';
-import { IDot, IDotArray } from './interfaces';
+import { IDotArray } from './interfaces';
 
 export class DotsArray implements IDotArray{
   xArray: number[] = []

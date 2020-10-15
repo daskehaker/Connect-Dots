@@ -62,7 +62,7 @@ export class AppComponent implements OnInit{
     if(this.nextDot == this.dotsInLevel && this.currentLevel!=3){
       this.nextLevel = true
     }
-    else if (this.nextDot == this.dotsInLevel){this.gameOver=true; this.isPlaying=false}
+    else if (this.nextDot == this.dotsInLevel){this.gameOver=true;}
     if(this.isPlaying) this.initCircle();
   }
 
